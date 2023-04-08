@@ -11,59 +11,53 @@ public class Transaction {
 
 	@Id
 	@GeneratedValue
-	private Integer transactionId;
+	private Integer id;
 	
-	private TransactionType type;
+	private String fromAccountNumber;
 	
-	private Integer fromAccountId;
-	
-	private Integer toAccountId;
+	private String toAccountNumber;
 	
 	private LocalDate issueDate;
 	
 	private Double amount;
+	
+	private String description;
+	
+	public Transaction() { }
 
-	public Transaction(Integer transactionId, TransactionType type, Integer fromAccountId, Integer toAccountId,
-			LocalDate issueDate, Double amount) {
+	public Transaction(Integer id, String fromAccountNumber, String toAccountNumber,
+			LocalDate issueDate, Double amount, String description) {
 		super();
-		this.transactionId = transactionId;
-		this.type = type;
-		this.fromAccountId = fromAccountId;
-		this.toAccountId = toAccountId;
+		this.id = id;
+		this.fromAccountNumber = fromAccountNumber;
+		this.toAccountNumber = toAccountNumber;
 		this.issueDate = issueDate;
 		this.amount = amount;
+		this.description = description;
 	}
 
-	public Integer getTransactionId() {
-		return transactionId;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setTransactionId(Integer transactionId) {
-		this.transactionId = transactionId;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public TransactionType getType() {
-		return type;
+	public String getFromAccountNumber() {
+		return fromAccountNumber;
 	}
 
-	public void setType(TransactionType type) {
-		this.type = type;
+	public void setFromAccountNumber(String fromAccountNumber) {
+		this.fromAccountNumber = fromAccountNumber;
 	}
 
-	public Integer getFromAccountId() {
-		return fromAccountId;
+	public String getToAccountNumber() {
+		return toAccountNumber;
 	}
 
-	public void setFromAccountId(Integer fromAccountId) {
-		this.fromAccountId = fromAccountId;
-	}
-
-	public Integer getToAccountId() {
-		return toAccountId;
-	}
-
-	public void setToAccountId(Integer toAccountId) {
-		this.toAccountId = toAccountId;
+	public void setToAccountNumber(String toAccountNumber) {
+		this.toAccountNumber = toAccountNumber;
 	}
 
 	public LocalDate getIssueDate() {
@@ -81,8 +75,12 @@ public class Transaction {
 	public void setAmount(Double amount) {
 		this.amount = amount;
 	}
-}
 
-enum TransactionType {
-	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 }

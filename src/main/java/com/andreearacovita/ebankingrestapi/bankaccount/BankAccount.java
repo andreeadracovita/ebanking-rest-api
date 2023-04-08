@@ -5,38 +5,35 @@ import jakarta.persistence.Id;
 
 @Entity
 public class BankAccount {
-	
-	enum BankAccountType {
-		checking,
-		credit,
-		savings,
-	}
-	
-	enum BankAccountCurrency {
-		CHF,
-		EUR,
-		USD
-	}
 
 	@Id
 	private String accountNumber;
 	
-	private Integer customerID;
+	private String accountName;
+	
+	private Integer customerId;
 	
 	private BankAccountType type;
 	
 	private Double balance;
 
 	private BankAccountCurrency currency;
+	
+	public BankAccount() {}
 
-	public BankAccount(String accountNumber, Integer customerID, BankAccountType type, Double balance,
+	public BankAccount(String accountNumber, String accountName, Integer customerId, BankAccountType type, Double balance,
 			BankAccountCurrency currency) {
 		super();
 		this.accountNumber = accountNumber;
-		this.customerID = customerID;
+		this.customerId = customerId;
 		this.type = type;
 		this.balance = balance;
 		this.currency = currency;
+		if (type == BankAccountType.CREDIT) {
+			this.accountName = "Credit Card";
+		} else {
+			this.accountName = accountName;
+		}
 	}
 
 	public String getAccountNumber() {
@@ -47,12 +44,24 @@ public class BankAccount {
 		this.accountNumber = accountNumber;
 	}
 
-	public Integer getCustomerID() {
-		return customerID;
+	public String getAccountName() {
+		return accountName;
 	}
 
-	public void setCustomerID(Integer customerID) {
-		this.customerID = customerID;
+	public void setAccountName(String accountName) {
+		if (type == BankAccountType.CREDIT) {
+			this.accountName = "Credit Card";
+		} else {
+			this.accountName = accountName;
+		}
+	}
+
+	public Integer getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Integer customerId) {
+		this.customerId = customerId;
 	}
 
 	public BankAccountType getType() {
@@ -77,11 +86,5 @@ public class BankAccount {
 
 	public void setCurrency(BankAccountCurrency currency) {
 		this.currency = currency;
-	}
-
-	@Override
-	public String toString() {
-		return "BankAccount [accountNumber=" + accountNumber + ", customerID=" + customerID + ", type=" + type
-				+ ", balance=" + balance + ", currency=" + currency + "]";
 	}
 }

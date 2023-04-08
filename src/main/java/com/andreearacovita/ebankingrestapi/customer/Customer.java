@@ -14,6 +14,8 @@ public class Customer {
 	private String firstName;
 	
 	private String lastName;
+	
+	public Customer() {}
 
 	public Customer(Integer id, String firstName, String lastName) {
 		super();

@@ -1,26 +1,28 @@
-package com.andreearacovita.ebankingrestapi.ebankingaccount;
+package com.andreearacovita.ebankingrestapi.appaccount;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
 @Entity
-public class EBankingAccount {
+public class AppAccount {
 	
 	@Id
 	@GeneratedValue
 	private Integer id;
 	
-	private String userId;
+	private String username;
 	
 	private String password;
 	
 	private Integer customerId;
+	
+	public AppAccount() {}
 
-	public EBankingAccount(Integer id, String userId, String password, Integer customerId) {
+	public AppAccount(Integer id, String username, String password, Integer customerId) {
 		super();
 		this.id = id;
-		this.userId = userId;
+		this.username = username;
 		this.password = password;
 		this.customerId = customerId;
 	}
@@ -33,12 +35,12 @@ public class EBankingAccount {
 		this.id = id;
 	}
 
-	public String getUserId() {
-		return userId;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public String getPassword() {

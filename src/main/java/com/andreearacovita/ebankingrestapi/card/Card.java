@@ -9,17 +9,14 @@ import jakarta.persistence.Id;
 public class Card {
 	
 	enum CardType {
-		credit,
-		debit
-	};
-	
-	enum Provider {
-		mastercard,
-		visa
+		PHYSICAL,
+		VIRTUAL
 	};
 	
 	@Id
 	private String cardNumber;
+	
+	private String cardName;
 	
 	private String nameOnCard;
 	
@@ -27,28 +24,25 @@ public class Card {
 	
 	private CardType type;
 	
-	private Provider provider;
-	
 	private LocalDate availabilityDate;
 	
-	private Integer pin;
+	private String pin;
 	
-	private Integer cvv;
+	private String cvv;
 	
-	private Integer limitDailyPayments;
+	public Card() {}
 
-	public Card(String cardNumber, String nameOnCard, String accountNumber, CardType type, Provider provider,
-			LocalDate availabilityDate, Integer pin, Integer cvv, Integer limitDailyPayments) {
+	public Card(String cardNumber, String cardName, String nameOnCard, String accountNumber, CardType type,
+			LocalDate availabilityDate, String pin, String cvv) {
 		super();
 		this.cardNumber = cardNumber;
+		this.cardName = cardName;
 		this.nameOnCard = nameOnCard;
 		this.accountNumber = accountNumber;
 		this.type = type;
-		this.provider = provider;
 		this.availabilityDate = availabilityDate;
 		this.pin = pin;
 		this.cvv = cvv;
-		this.limitDailyPayments = limitDailyPayments;
 	}
 
 	public String getCardNumber() {
@@ -57,6 +51,14 @@ public class Card {
 
 	public void setCardNumber(String cardNumber) {
 		this.cardNumber = cardNumber;
+	}
+
+	public String getCardName() {
+		return cardName;
+	}
+
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
 	}
 
 	public String getNameOnCard() {
@@ -83,14 +85,6 @@ public class Card {
 		this.type = type;
 	}
 
-	public Provider getProvider() {
-		return provider;
-	}
-
-	public void setProvider(Provider provider) {
-		this.provider = provider;
-	}
-
 	public LocalDate getAvailabilityDate() {
 		return availabilityDate;
 	}
@@ -99,27 +93,19 @@ public class Card {
 		this.availabilityDate = availabilityDate;
 	}
 
-	public Integer getPin() {
+	public String getPin() {
 		return pin;
 	}
 
-	public void setPin(Integer pin) {
+	public void setPin(String pin) {
 		this.pin = pin;
 	}
 
-	public Integer getCvv() {
+	public String getCvv() {
 		return cvv;
 	}
 
-	public void setCvv(Integer cvv) {
+	public void setCvv(String cvv) {
 		this.cvv = cvv;
-	}
-
-	public Integer getLimitDailyPayments() {
-		return limitDailyPayments;
-	}
-
-	public void setLimitDailyPayments(Integer limitDailyPayments) {
-		this.limitDailyPayments = limitDailyPayments;
 	}
 }
