@@ -7,12 +7,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Card {
-	
-	enum CardType {
-		PHYSICAL,
-		VIRTUAL
-	};
-	
+		
 	@Id
 	private String cardNumber;
 	

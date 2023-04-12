@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,11 +21,15 @@ import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountCurrency;
 import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountType;
 import com.andreearacovita.ebankingrestapi.bankaccount.repository.BankAccountRepository;
 import com.andreearacovita.ebankingrestapi.card.Card;
+import com.andreearacovita.ebankingrestapi.card.CardType;
 import com.andreearacovita.ebankingrestapi.card.repository.CardRepository;
 import com.andreearacovita.ebankingrestapi.customer.Customer;
 import com.andreearacovita.ebankingrestapi.customer.repository.CustomerRepository;
 import com.andreearacovita.ebankingrestapi.transaction.Transaction;
 import com.andreearacovita.ebankingrestapi.transaction.repository.TransactionRepository;
+import com.andreearacovita.ebankingrestapi.utils.Generator;
+
+import jakarta.transaction.Transactional;
 
 @RestController
 public class EBankingJpaResource {
@@ -147,9 +151,9 @@ public class EBankingJpaResource {
 	public List<Transaction> retrieveAllTransactionsForBankAccountNumber(@PathVariable String username, @PathVariable String bankAccountNumber) {
 		AppAccount appAccount = appAccountRepository.findByUsername(username);
 		
-		Optional<BankAccount> bankAccount = bankAccountRepository.findByAccountNumber(bankAccountNumber);
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(bankAccountNumber);
 		
-		if (!bankAccount.isPresent() || bankAccount.isPresent() && bankAccount.get().getCustomerId() != appAccount.getCustomerId()) {
+		if (bankAccount == null || (bankAccount != null && bankAccount.getCustomerId() != appAccount.getCustomerId())) {
 			return new ArrayList<>();
 		}
 		
@@ -166,7 +170,9 @@ public class EBankingJpaResource {
 		return transactions;
 	}
 	
-	@CrossOrigin(origins = "http://localhost:3000")
+	//---------------------------------------------------------------------------------------------
+	
+//	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping("/{username}/transaction")
 	public Transaction createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
 		// Validate sufficient funds
@@ -176,27 +182,98 @@ public class EBankingJpaResource {
 		return transactionRepository.save(transaction);
 	}
 	
-//	@GetMapping("/users/{username}/todos/{id}")
-//	public BankAccount retrieveTodo(@PathVariable String username, @PathVariable int id) {
-//		return bankAccountRepository.findById(id).get();
-//	}
-//	
-//	@DeleteMapping("/users/{username}/todos/{id}")
-//	public ResponseEntity<Void> deleteTodo(@PathVariable String username, @PathVariable int id) {
-//		bankAccountRepository.deleteById(id);
-//		return ResponseEntity.noContent().build();
-//	}
-//	
+	@PostMapping("/{username}/account/checking/{currency}")
+	public BankAccount createCheckingAccount(@PathVariable String username, @PathVariable Integer currency) {
+		BankAccount newAccount = new BankAccount();
+		
+		String generatedBankAccount = Generator.generateBankAccount();
+		while (bankAccountRepository.findByAccountNumber(generatedBankAccount) != null) {
+			generatedBankAccount = Generator.generateBankAccount();
+		}			
+		newAccount.setAccountNumber(generatedBankAccount);
+		
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		newAccount.setCustomerId(appAccount.getCustomerId());
+		
+		newAccount.setBalance(0.);
+		newAccount.setAccountName("Checking account");
+		newAccount.setType(BankAccountType.CHECKING);
+		if (currency < BankAccountCurrency.values().length) {
+			newAccount.setCurrency(BankAccountCurrency.values()[currency]);
+		}
+		
+		return bankAccountRepository.save(newAccount);
+	}
+	
+	@PostMapping("/{username}/account/savings")
+	public BankAccount createSavingsAccount(@PathVariable String username) {
+		BankAccount newAccount = new BankAccount();
+		
+		String generatedBankAccount = Generator.generateBankAccount();
+		while (bankAccountRepository.findByAccountNumber(generatedBankAccount) != null) {
+			generatedBankAccount = Generator.generateBankAccount();
+		}			
+		newAccount.setAccountNumber(generatedBankAccount);
+		
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		newAccount.setCustomerId(appAccount.getCustomerId());
+		
+		newAccount.setBalance(0.);
+		newAccount.setAccountName("Savings account");
+		newAccount.setType(BankAccountType.SAVINGS);
+		
+		newAccount.setCurrency(BankAccountCurrency.CHF);
+		
+		
+		return bankAccountRepository.save(newAccount);
+	}
+	
+	@PostMapping("/{username}/card")
+	public Card createVirtualCard(@PathVariable String username, @RequestBody String accountNumber) {
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
+		if (bankAccount == null) {
+			return null;
+		}
+		
+		Card newCard = new Card();
+		
+		String generatedCardNumber = Generator.generateCardNumber();
+		while (cardRepository.findByCardNumber(generatedCardNumber) != null) {
+			generatedCardNumber = Generator.generateCardNumber();
+		}
+		newCard.setAccountNumber(accountNumber);
+		
+		newCard.setCvv(Generator.generateCVV());
+		newCard.setPin(Generator.generatePIN());
+		newCard.setAvailabilityDate(null);
+		newCard.setType(CardType.VIRTUAL);
+		newCard.setCardName("Virtual " + bankAccount.getCurrency().toString());
+		
+		return cardRepository.save(newCard);
+	}
+	
+	//---------------------------------------------------------------------------------------------
+	
+	@Transactional
+	@DeleteMapping("/{username}/accounts/{accountNumber}")
+	public ResponseEntity<Void> deleteBankAccount(@PathVariable String username, @PathVariable String accountNumber) {
+		// Validate that account belongs to user
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
+		if (bankAccount.getBalance() > 0) {
+			return ResponseEntity.badRequest().build();
+		}
+		
+		if (appAccount != null && bankAccount != null && appAccount.getCustomerId() == bankAccount.getCustomerId()) {
+			bankAccountRepository.deleteByAccountNumber(accountNumber);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.badRequest().build();
+	}
+
 //	@PutMapping("/users/{username}/todos/{id}")
 //	public BankAccount updateTodo(@PathVariable String username, @PathVariable int id, @RequestBody BankAccount bankAccount) {
 //		bankAccountRepository.save(bankAccount);
 //		return bankAccount;
-//	}
-//	
-//	@PostMapping("/users/{username}/todos")
-//	public BankAccount createTodo(@PathVariable String username, @RequestBody BankAccount bankAccount) {
-//		bankAccount.setUsername(username);
-//		bankAccount.setId(null);
-//		return bankAccountRepository.save(bankAccount);
 //	}
 }

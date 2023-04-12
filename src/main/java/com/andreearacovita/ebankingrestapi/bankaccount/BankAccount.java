@@ -25,15 +25,11 @@ public class BankAccount {
 			BankAccountCurrency currency) {
 		super();
 		this.accountNumber = accountNumber;
+		this.accountName = accountName;
 		this.customerId = customerId;
 		this.type = type;
 		this.balance = balance;
 		this.currency = currency;
-		if (type == BankAccountType.CREDIT) {
-			this.accountName = "Credit Card";
-		} else {
-			this.accountName = accountName;
-		}
 	}
 
 	public String getAccountNumber() {
@@ -49,11 +45,7 @@ public class BankAccount {
 	}
 
 	public void setAccountName(String accountName) {
-		if (type == BankAccountType.CREDIT) {
-			this.accountName = "Credit Card";
-		} else {
-			this.accountName = accountName;
-		}
+		this.accountName = accountName;
 	}
 
 	public Integer getCustomerId() {
