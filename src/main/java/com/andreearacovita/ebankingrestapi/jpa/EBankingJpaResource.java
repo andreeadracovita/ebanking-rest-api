@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -113,6 +115,18 @@ public class EBankingJpaResource {
 				.toList();
 	}
 	
+	@GetMapping("/{username}/accounts/checking/local")
+	public List<BankAccount> retrieveAllLocalCheckingBankAccountsForUsername(@PathVariable String username) {
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(appAccount.getCustomerId());
+		
+		return bankAccounts
+				.stream()
+				.filter(bankAccount -> bankAccount.getCurrency() == BankAccountCurrency.CHF && bankAccount.getType() == BankAccountType.CHECKING)
+				.toList();
+	}
+	
 	@GetMapping("/{username}/accounts/foreign")
 	public List<BankAccount> retrieveAllForeignBankAccountsForUsername(@PathVariable String username) {
 		AppAccount appAccount = appAccountRepository.findByUsername(username);
@@ -172,7 +186,6 @@ public class EBankingJpaResource {
 	
 	//---------------------------------------------------------------------------------------------
 	
-//	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping("/{username}/transaction")
 	public Transaction createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
 		// Validate sufficient funds
@@ -266,6 +279,26 @@ public class EBankingJpaResource {
 		
 		if (appAccount != null && bankAccount != null && appAccount.getCustomerId() == bankAccount.getCustomerId()) {
 			bankAccountRepository.deleteByAccountNumber(accountNumber);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.badRequest().build();
+	}
+	
+	//---------------------------------------------------------------------------------------------
+	
+	@PutMapping("/{username}/accounts/{accountNumber}")
+	public ResponseEntity<Void> updateBankAccountName(@PathVariable String username, @PathVariable String accountNumber, @RequestBody Map<String, String> payload) {
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
+		if (appAccount == null || bankAccount == null) {
+			return ResponseEntity.badRequest().build();
+		}
+		if (appAccount != null && bankAccount != null && appAccount.getCustomerId() != bankAccount.getCustomerId()) {
+			return ResponseEntity.badRequest().build();
+		}
+		if (payload.get("name") != null) {
+			bankAccount.setAccountName(payload.get("name"));
+			bankAccountRepository.save(bankAccount);
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.badRequest().build();
