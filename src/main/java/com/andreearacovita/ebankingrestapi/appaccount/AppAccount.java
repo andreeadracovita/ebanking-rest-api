@@ -13,17 +13,17 @@ public class AppAccount {
 	
 	private String username;
 	
-	private String password;
+	private String passcode;
 	
 	private Integer customerId;
 	
 	public AppAccount() {}
 
-	public AppAccount(Integer id, String username, String password, Integer customerId) {
+	public AppAccount(Integer id, String username, String passcode, Integer customerId) {
 		super();
 		this.id = id;
 		this.username = username;
-		this.password = password;
+		this.passcode = passcode;
 		this.customerId = customerId;
 	}
 
@@ -43,12 +43,12 @@ public class AppAccount {
 		this.username = username;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getPasscode() {
+		return passcode;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setPasscode(String passcode) {
+		this.passcode = passcode;
 	}
 
 	public Integer getCustomerId() {

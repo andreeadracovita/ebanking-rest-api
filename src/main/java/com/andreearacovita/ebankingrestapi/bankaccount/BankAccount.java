@@ -79,4 +79,20 @@ public class BankAccount {
 	public void setCurrency(BankAccountCurrency currency) {
 		this.currency = currency;
 	}
+	
+	public boolean deposit(Double amount) {
+		if (amount >= 0) {
+			this.balance += amount;
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean withdraw(Double amount) {
+		if (amount >=0 && balance >= amount) {
+			this.balance -= amount;
+			return true;
+		}
+		return false;
+	}
 }

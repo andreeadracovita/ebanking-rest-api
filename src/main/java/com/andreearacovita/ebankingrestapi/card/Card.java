@@ -25,6 +25,8 @@ public class Card {
 	
 	private String cvv;
 	
+	private CardStatus status;
+	
 	public Card() {}
 
 	public Card(String cardNumber, String cardName, String nameOnCard, String accountNumber, CardType type,
@@ -38,6 +40,7 @@ public class Card {
 		this.availabilityDate = availabilityDate;
 		this.pin = pin;
 		this.cvv = cvv;
+		this.status = CardStatus.ACTIVE;
 	}
 
 	public String getCardNumber() {
@@ -102,5 +105,13 @@ public class Card {
 
 	public void setCvv(String cvv) {
 		this.cvv = cvv;
+	}
+
+	public CardStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(CardStatus status) {
+		this.status = status;
 	}
 }

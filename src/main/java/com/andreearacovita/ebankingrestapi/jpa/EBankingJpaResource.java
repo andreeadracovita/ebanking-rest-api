@@ -1,12 +1,15 @@
 package com.andreearacovita.ebankingrestapi.jpa;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,7 @@ import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountCurrency;
 import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountType;
 import com.andreearacovita.ebankingrestapi.bankaccount.repository.BankAccountRepository;
 import com.andreearacovita.ebankingrestapi.card.Card;
+import com.andreearacovita.ebankingrestapi.card.CardStatus;
 import com.andreearacovita.ebankingrestapi.card.CardType;
 import com.andreearacovita.ebankingrestapi.card.repository.CardRepository;
 import com.andreearacovita.ebankingrestapi.customer.Customer;
@@ -56,6 +60,15 @@ public class EBankingJpaResource {
 		this.customerRepository = customerRepository;
 		this.appAccountRepository = appAccountRepository;
 		this.transactionRepository = transactionRepository;
+	}
+	
+	@GetMapping("/{username}/customer/{id}")
+	public String retrieveCustomerNameForId(@PathVariable String username, @PathVariable int id) {
+		Optional<Customer> customer = customerRepository.findById(id);
+		if (customer.isPresent()) {
+			return customer.get().getFirstName() + " " + customer.get().getLastName();
+		}
+		return "";
 	}
 	
 	@GetMapping("/{username}/customername")
@@ -146,6 +159,18 @@ public class EBankingJpaResource {
 		return bankAccountRepository.findByCustomerId(appAccount.getCustomerId());
 	}
 	
+	@GetMapping("/{username}/accounts/{id}")
+	public BankAccount retrieveBankAccountForAccountNumber(@PathVariable String username, @PathVariable String id) {
+		AppAccount account = appAccountRepository.findByUsername(username);
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(id);
+		
+		if (account.getCustomerId() == bankAccount.getCustomerId()) {
+			return bankAccount;
+		}
+		
+		return null;
+	}
+	
 	@GetMapping("/{username}/cards")
 	public List<Card> retrieveAllCardsForUsername(@PathVariable String username) {
 		AppAccount appAccount = appAccountRepository.findByUsername(username);
@@ -159,6 +184,16 @@ public class EBankingJpaResource {
 		}
 		
 		return cards;
+	}
+	
+	@GetMapping("/{username}/cards/{id}/availabilityDate")
+	public String retrieveAvailabilityDateForCardNumber(@PathVariable String username, @PathVariable String id) {
+		// check user.customerId == account.customerId (for card.accountNumber)
+		
+		Card card = cardRepository.findByCardNumber(id);
+		
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/yy");
+		return card.getAvailabilityDate().format(dateTimeFormatter);
 	}
 	
 	@GetMapping("/{username}/{bankAccountNumber}/transactions")
@@ -187,12 +222,34 @@ public class EBankingJpaResource {
 	//---------------------------------------------------------------------------------------------
 	
 	@PostMapping("/{username}/transaction")
-	public Transaction createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
+	public ResponseEntity<String> createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
 		// Validate sufficient funds
+		if (transaction.getAmount() < 0) {
+			return new ResponseEntity<>(
+			          "Negative amount not allowed", 
+			          HttpStatus.BAD_REQUEST);
+		}
+		
+		BankAccount fromAccount = bankAccountRepository.findByAccountNumber(transaction.getFromAccountNumber());
+		BankAccount toAccount = bankAccountRepository.findByAccountNumber(transaction.getToAccountNumber());
+		if (fromAccount != null && fromAccount.getBalance() < transaction.getAmount()) {
+			return new ResponseEntity<>(
+			          "Insufficient funds", 
+			          HttpStatus.BAD_REQUEST);
+		}
+		
+		fromAccount.withdraw(transaction.getAmount());
+		
+		if (toAccount != null) {
+			Double actualAmount = transaction.getAmount() * transaction.getExchangeRate();
+			Double convertedAmount = Math.floor(actualAmount * 100) / 100;
+			toAccount.deposit(convertedAmount);
+		}
 		
 		transaction.setId(null);
 		transaction.setIssueDate(LocalDate.now());
-		return transactionRepository.save(transaction);
+		transactionRepository.save(transaction);
+		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}
 	
 	@PostMapping("/{username}/account/checking/{currency}")
@@ -287,18 +344,66 @@ public class EBankingJpaResource {
 	//---------------------------------------------------------------------------------------------
 	
 	@PutMapping("/{username}/accounts/{accountNumber}")
-	public ResponseEntity<Void> updateBankAccountName(@PathVariable String username, @PathVariable String accountNumber, @RequestBody Map<String, String> payload) {
+	public ResponseEntity<Void> updateBankAccountName(@PathVariable String username,
+													  @PathVariable String accountNumber,
+													  @RequestBody Map<String, String> payload) {
 		AppAccount appAccount = appAccountRepository.findByUsername(username);
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
 		if (appAccount == null || bankAccount == null) {
 			return ResponseEntity.badRequest().build();
 		}
-		if (appAccount != null && bankAccount != null && appAccount.getCustomerId() != bankAccount.getCustomerId()) {
+		if (appAccount.getCustomerId() != bankAccount.getCustomerId()) {
 			return ResponseEntity.badRequest().build();
 		}
 		if (payload.get("name") != null) {
 			bankAccount.setAccountName(payload.get("name"));
 			bankAccountRepository.save(bankAccount);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.badRequest().build();
+	}
+	
+	@PutMapping("/{username}/cards/{id}/activate")
+	public Card updateCardActivate(@PathVariable String username, @PathVariable String id) {
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		Card card = cardRepository.findByCardNumber(id);
+		if (appAccount == null || card == null) {
+			return null;
+		}
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(card.getAccountNumber());
+		if (bankAccount != null && appAccount.getCustomerId() == bankAccount.getCustomerId()) {
+			card.setStatus(CardStatus.ACTIVE);
+			cardRepository.save(card);
+			return card;
+		}
+		return null;
+	}
+	
+	@PutMapping("/{username}/cards/{id}/deactivate")
+	public Card updateCardDeactivate(@PathVariable String username, @PathVariable String id) {
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		Card card = cardRepository.findByCardNumber(id);
+		if (appAccount == null || card == null) {
+			return null;
+		}
+		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(card.getAccountNumber());
+		if (bankAccount != null && appAccount.getCustomerId() == bankAccount.getCustomerId()) {
+			card.setStatus(CardStatus.INACTIVE);
+			cardRepository.save(card);
+			return card;
+		}
+		return null;
+	}
+	
+	@PutMapping("/{username}/passcode")
+	public ResponseEntity<Void> updateUserPasscode(@PathVariable String username, @RequestBody Map<String, String> payload) {
+		AppAccount appAccount = appAccountRepository.findByUsername(username);
+		if (appAccount == null) {
+			return ResponseEntity.badRequest().build();
+		}
+		if (payload.get("passcode") != null) {
+			appAccount.setPasscode(payload.get("passcode"));
+			appAccountRepository.save(appAccount);
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.badRequest().build();
