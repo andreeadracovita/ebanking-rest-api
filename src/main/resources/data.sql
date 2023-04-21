@@ -1,14 +1,14 @@
+INSERT INTO ebanking_user (id, username, password, customer_id)
+VALUES (1, 'user', '{noop}12345', 1);
+
+INSERT INTO ebanking_user (id, username, password, customer_id)
+VALUES (2, 'JohnDoe', '{noop}00000', 2);
+
 insert into customer (id, first_name, last_name)
 values (1, 'Jane', 'Doe');
 
 insert into customer (id, first_name, last_name)
 values (2, 'John', 'Doe');
-
-insert into app_account (id, username, passcode, customer_id)
-values (1, 'user', '12345', 1);
-
-insert into app_account (id, username, passcode, customer_id)
-values (2, 'JohnDoe', '00000', 2);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
 values ('CH9300001000011110001', 'Checking Account', 1, 0, 1000.0, 0);

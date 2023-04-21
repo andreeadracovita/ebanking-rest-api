@@ -2,7 +2,6 @@ package com.andreearacovita.ebankingrestapi.jwt;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
@@ -20,18 +19,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.andreearacovita.ebankingrestapi.user.CustomUserDetailsService;
+import com.andreearacovita.ebankingrestapi.user.UserRepository;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -60,9 +59,9 @@ public class JwtSecurityConfig {
                                 .requestMatchers(HttpMethod.OPTIONS,"/**")
                                 .permitAll()
                                 .anyRequest()
-                                .authenticated()) // (3)
+                                .authenticated())
                 .oauth2ResourceServer(
-                        OAuth2ResourceServerConfigurer::jwt) // (4)
+                        OAuth2ResourceServerConfigurer::jwt)
                 .exceptionHandling(
                         (ex) -> 
                             ex.authenticationEntryPoint(
@@ -70,26 +69,8 @@ public class JwtSecurityConfig {
                               .accessDeniedHandler(
                                 new BearerTokenAccessDeniedHandler()))
                 .httpBasic(
-                        Customizer.withDefaults()) // (5)
+                        Customizer.withDefaults())
                 .build();
-        		
-//        		.authorizeHttpRequests(auth -> auth
-//                        .mvcMatchers("/authenticate").permitAll()
-//                        .requestMatchers(PathRequest.toH2Console()).permitAll() // h2-console is a servlet and NOT recommended for a production
-//                        .antMatchers(HttpMethod.OPTIONS,"/**")
-//                        .permitAll()
-//                        .anyRequest()
-//                        .authenticated())
-//                    .csrf(AbstractHttpConfigurer::disable)
-//                    .sessionManagement(session -> session.
-//                        sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                    .oauth2ResourceServer(
-//                            OAuth2ResourceServerConfigurer::jwt)
-//                    .httpBasic(
-//                            Customizer.withDefaults())
-//                    .headers(header -> {header.
-//                        frameOptions().sameOrigin();})
-//                    .build();
     }
 
     @Bean
@@ -101,57 +82,60 @@ public class JwtSecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("user")
-                                .password("{noop}12345")
-                                .authorities("read")
-                                .roles("USER")
-                                .build();
-
-        return new InMemoryUserDetailsManager(user);
+    public CustomUserDetailsService userDetailsService() {    		
+		return new CustomUserDetailsService();
     }
-
-    @Bean
-    public JWKSource<SecurityContext> jwkSource() {
-        JWKSet jwkSet = new JWKSet(rsaKey());
-        return (((jwkSelector, securityContext) 
-                        -> jwkSelector.select(jwkSet)));
-    }
-
-    @Bean
-    JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() throws JOSEException {
-        return NimbusJwtDecoder
-                .withPublicKey(rsaKey().toRSAPublicKey())
-                .build();
-    }
-    
-    @Bean
-    public RSAKey rsaKey() {
-        
-        KeyPair keyPair = keyPair();
-        
-        return new RSAKey
-                .Builder((RSAPublicKey) keyPair.getPublic())
-                .privateKey((RSAPrivateKey) keyPair.getPrivate())
-                .keyID(UUID.randomUUID().toString())
-                .build();
-    }
-
-    @Bean
-    public KeyPair keyPair() {
-        try {
-            var keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            return keyPairGenerator.generateKeyPair();
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                    "Unable to generate an RSA Key Pair", e);
-        }
-    }
-    
+	
+	/**
+	 * Create Key Pair.
+	 */
+	@Bean
+	public KeyPair keyPair() {
+		try {
+			var keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+			keyPairGenerator.initialize(2048);
+			return keyPairGenerator.generateKeyPair();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	/**
+	 * Create RSA Key object using Key Pair.
+	 */
+	@Bean
+	public RSAKey rsaKey(KeyPair keyPair) {
+		return new RSAKey
+			.Builder((RSAPublicKey)keyPair.getPublic())
+			.privateKey(keyPair.getPrivate())
+			.keyID(UUID.randomUUID().toString())
+			.build();
+	}
+	
+	/**
+	 * Create JWKSource (JSON Web Key Source) with the RSA Key.
+	 * Create JWKSource using the JWKSet
+	 */
+	@Bean
+	public JWKSource<SecurityContext> jwkSource(RSAKey rsaKey) {
+		var jwkSet = new JWKSet(rsaKey);
+		
+		return (jwkSelector, context) -> jwkSelector.select(jwkSet);
+	}
+	
+	/**
+	 * Use RSA Public Key for Decoding
+	 * @throws JOSEException 
+	 */
+	@Bean
+	public JwtDecoder jwtDecoder(RSAKey rsaKey) throws JOSEException {
+		return NimbusJwtDecoder
+				.withPublicKey(rsaKey.toRSAPublicKey())
+				.build();
+	}
+	
+	@Bean
+	public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+		return new NimbusJwtEncoder(jwkSource);
+	}
 }
