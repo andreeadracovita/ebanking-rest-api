@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,8 +59,12 @@ public class EBankingJpaResource {
 		this.userRepository = userRepository;
 	}
 	
-	@GetMapping("/{username}/customer/{id}")
-	public String retrieveCustomerNameForId(@PathVariable String username, @PathVariable int id) {
+	@GetMapping("/{username}/customername/{id}")
+	@PreAuthorize("#username == authentication.name")
+//	@PostAuthorize("returnObject.username == 'ando'")
+//	@RolesAllowed({"ADMIN", "USER"})
+//	@Secured({"ROLE_ADMIN", "ROLE_USER"})
+	public String retrieveCustomerNameForCustomerId(@PathVariable String username, @PathVariable int id) {
 		Optional<Customer> customer = customerRepository.findById(id);
 		if (customer.isPresent()) {
 			return customer.get().getFirstName() + " " + customer.get().getLastName();
@@ -68,6 +73,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/customername")
+	@PreAuthorize("#username == authentication.name")
 	public String retrieveCustomerNameForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -77,6 +83,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/checking")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveCheckingAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -89,6 +96,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/credit")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveCreditAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -101,6 +109,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/savings")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveSavingsAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -113,6 +122,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/local")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveAllLocalBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -125,6 +135,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/checking/local")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveAllLocalCheckingBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -137,6 +148,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/foreign")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveAllForeignBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -149,6 +161,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts")
+	@PreAuthorize("#username == authentication.name")
 	public List<BankAccount> retrieveAllBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -156,6 +169,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/accounts/{id}")
+	@PreAuthorize("#username == authentication.name")
 	public BankAccount retrieveBankAccountForAccountNumber(@PathVariable String username, @PathVariable String id) {
 		EbankingUser user = userRepository.findByUsername(username);
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(id);
@@ -168,6 +182,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/cards")
+	@PreAuthorize("#username == authentication.name")
 	public List<Card> retrieveAllCardsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -183,6 +198,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/cards/{id}/availabilityDate")
+	@PreAuthorize("#username == authentication.name")
 	public String retrieveAvailabilityDateForCardNumber(@PathVariable String username, @PathVariable String id) {
 		// check user.customerId == account.customerId (for card.accountNumber)
 		
@@ -193,6 +209,7 @@ public class EBankingJpaResource {
 	}
 	
 	@GetMapping("/{username}/{bankAccountNumber}/transactions")
+	@PreAuthorize("#username == authentication.name")
 	public List<Transaction> retrieveAllTransactionsForBankAccountNumber(@PathVariable String username, @PathVariable String bankAccountNumber) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
@@ -218,6 +235,7 @@ public class EBankingJpaResource {
 	//---------------------------------------------------------------------------------------------
 	
 	@PostMapping("/{username}/transaction")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<String> createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
 		// Validate sufficient funds
 		if (transaction.getAmount() < 0) {
@@ -249,6 +267,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PostMapping("/{username}/account/checking/{currency}")
+	@PreAuthorize("#username == authentication.name")
 	public BankAccount createCheckingAccount(@PathVariable String username, @PathVariable Integer currency) {
 		BankAccount newAccount = new BankAccount();
 		
@@ -272,6 +291,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PostMapping("/{username}/account/savings")
+	@PreAuthorize("#username == authentication.name")
 	public BankAccount createSavingsAccount(@PathVariable String username) {
 		BankAccount newAccount = new BankAccount();
 		
@@ -295,6 +315,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PostMapping("/{username}/card")
+	@PreAuthorize("#username == authentication.name")
 	public Card createVirtualCard(@PathVariable String username, @RequestBody String accountNumber) {
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
 		if (bankAccount == null) {
@@ -322,6 +343,7 @@ public class EBankingJpaResource {
 	
 	@Transactional
 	@DeleteMapping("/{username}/accounts/{accountNumber}")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<Void> deleteBankAccount(@PathVariable String username, @PathVariable String accountNumber) {
 		// Validate that account belongs to user
 		EbankingUser user = userRepository.findByUsername(username);
@@ -340,6 +362,7 @@ public class EBankingJpaResource {
 	//---------------------------------------------------------------------------------------------
 	
 	@PutMapping("/{username}/accounts/{accountNumber}")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<Void> updateBankAccountName(@PathVariable String username,
 													  @PathVariable String accountNumber,
 													  @RequestBody Map<String, String> payload) {
@@ -360,6 +383,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PutMapping("/{username}/cards/{id}/activate")
+	@PreAuthorize("#username == authentication.name")
 	public Card updateCardActivate(@PathVariable String username, @PathVariable String id) {
 		EbankingUser user = userRepository.findByUsername(username);
 		Card card = cardRepository.findByCardNumber(id);
@@ -376,6 +400,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PutMapping("/{username}/cards/{id}/deactivate")
+	@PreAuthorize("#username == authentication.name")
 	public Card updateCardDeactivate(@PathVariable String username, @PathVariable String id) {
 		EbankingUser user = userRepository.findByUsername(username);
 		Card card = cardRepository.findByCardNumber(id);
@@ -392,6 +417,7 @@ public class EBankingJpaResource {
 	}
 	
 	@PutMapping("/{username}/passcode")
+	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<Void> updateUserPasscode(@PathVariable String username, @RequestBody Map<String, String> payload) {
 		EbankingUser user = userRepository.findByUsername(username);
 		if (user == null) {
