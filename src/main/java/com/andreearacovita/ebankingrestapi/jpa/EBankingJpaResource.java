@@ -424,7 +424,7 @@ public class EBankingJpaResource {
 			return ResponseEntity.badRequest().build();
 		}
 		if (payload.get("passcode") != null) {
-			user.setPassword(payload.get("passcode"));
+			user.setPassword("{noop}" + payload.get("passcode"));
 			userRepository.save(user);
 			return ResponseEntity.ok().build();
 		}
