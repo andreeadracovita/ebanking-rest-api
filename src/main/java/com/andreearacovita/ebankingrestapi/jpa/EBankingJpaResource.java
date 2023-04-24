@@ -1,6 +1,6 @@
 package com.andreearacovita.ebankingrestapi.jpa;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,7 +130,7 @@ public class EBankingJpaResource {
 		
 		return bankAccounts
 				.stream()
-				.filter(bankAccount -> bankAccount.getCurrency() == BankAccountCurrency.CHF)
+				.filter(bankAccount -> bankAccount.getCurrency() == BankAccountCurrency.CHF && bankAccount.getType() != BankAccountType.CREDIT)
 				.toList();
 	}
 	
@@ -223,8 +223,8 @@ public class EBankingJpaResource {
 		
 		transactions.addAll(transactionRepository.findAllByToAccountNumber(bankAccountNumber));
 		
-		Comparator<Transaction> comparatorDesc = (trans1, trans2) -> trans1.getIssueDate()
-                .compareTo(trans2.getIssueDate());
+		Comparator<Transaction> comparatorDesc = (trans1, trans2) -> trans2.getIssueDate()
+                .compareTo(trans1.getIssueDate());
 		
 		Collections.sort(transactions, comparatorDesc);
 		
@@ -261,7 +261,7 @@ public class EBankingJpaResource {
 		}
 		
 		transaction.setId(null);
-		transaction.setIssueDate(LocalDate.now());
+		transaction.setIssueDate(LocalDateTime.now());
 		transactionRepository.save(transaction);
 		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}

@@ -1,25 +1,27 @@
 package com.andreearacovita.ebankingrestapi.transaction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountCurrency;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class Transaction {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
 	private String fromAccountNumber;
 	
 	private String toAccountNumber;
 	
-	private LocalDate issueDate;
+	private LocalDateTime issueDate;
 	
 	private Double amount;
 	
@@ -32,7 +34,7 @@ public class Transaction {
 	public Transaction() { }
 
 	public Transaction(Integer id, String fromAccountNumber, String toAccountNumber,
-			LocalDate issueDate, Double amount, BankAccountCurrency currency, String description, Double exchangeRate) {
+			LocalDateTime issueDate, Double amount, BankAccountCurrency currency, String description, Double exchangeRate) {
 		super();
 		this.id = id;
 		this.fromAccountNumber = fromAccountNumber;
@@ -68,11 +70,11 @@ public class Transaction {
 		this.toAccountNumber = toAccountNumber;
 	}
 
-	public LocalDate getIssueDate() {
+	public LocalDateTime getIssueDate() {
 		return issueDate;
 	}
 
-	public void setIssueDate(LocalDate issueDate) {
+	public void setIssueDate(LocalDateTime issueDate) {
 		this.issueDate = issueDate;
 	}
 
