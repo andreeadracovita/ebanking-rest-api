@@ -9,7 +9,7 @@ import com.andreearacovita.ebankingrestapi.bankaccount.BankAccount;
 
 public interface BankAccountRepository extends JpaRepository<BankAccount, Integer> {
 
-	List<BankAccount> findByCustomerId(Integer customerId);
+	List<BankAccount> findByCustomerId(Long customerId);
 	
 	BankAccount findByAccountNumber(String accountNumber);
 

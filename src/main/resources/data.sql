@@ -1,35 +1,35 @@
 INSERT INTO ebanking_user (id, username, password, customer_id)
-VALUES (1, 'user', '{noop}12345', 1);
+VALUES (101, 'user', '{noop}12345', 101);
 
 INSERT INTO ebanking_user (id, username, password, customer_id)
-VALUES (2, 'JohnDoe', '{noop}00000', 2);
+VALUES (102, 'JohnDoe', '{noop}00000', 102);
 
-insert into customer (id, first_name, last_name)
-values (1, 'Jane', 'Doe');
+insert into customer (id, first_name, last_name, oasi)
+values (101, 'Jane', 'Doe', '0000011111001');
 
-insert into customer (id, first_name, last_name)
-values (2, 'John', 'Doe');
-
-insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110001', 'Checking Account', 1, 0, 1000.0, 0);
+insert into customer (id, first_name, last_name, oasi)
+values (102, 'John', 'Doe', '0000011111002');
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110002', 'Credit Card', 1, 1, 3000.0, 0);
+values ('CH9300001000011110001', 'Checking Account', 101, 0, 1000.0, 0);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110003', 'Savings Account 1', 1, 2, 2000.0, 0);
+values ('CH9300001000011110002', 'Credit Card', 101, 1, 3000.0, 0);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110004', 'Savings Account 2', 1, 2, 500.0, 0);
+values ('CH9300001000011110003', 'Savings Account 1', 101, 2, 2000.0, 0);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110005', 'Savings Account 3', 1, 2, 1000.0, 0);
+values ('CH9300001000011110004', 'Savings Account 2', 101, 2, 500.0, 0);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110006', 'Checking Account', 2, 0, 500.0, 0);
+values ('CH9300001000011110005', 'Savings Account 3', 101, 2, 1000.0, 0);
 
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
-values ('CH9300001000011110007', 'EUR Account', 1, 0, 1000.0, 1);
+values ('CH9300001000011110006', 'Checking Account', 102, 0, 500.0, 0);
+
+insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
+values ('CH9300001000011110007', 'EUR Account', 101, 0, 1000.0, 1);
 
 insert into card (card_number, card_name, name_on_card, account_number, type, availability_date, pin, cvv, status)
 values ('0000111122220001', 'MasterCard CHF', 'Jane Doe', 'CH9300001000011110001', 0, DATEADD(yy, 2, CURRENT_DATE()), '0000', '000', 0);

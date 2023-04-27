@@ -11,7 +11,7 @@ public class BankAccount {
 	
 	private String accountName;
 	
-	private Integer customerId;
+	private Long customerId;
 	
 	private BankAccountType type;
 	
@@ -21,7 +21,7 @@ public class BankAccount {
 	
 	public BankAccount() {}
 
-	public BankAccount(String accountNumber, String accountName, Integer customerId, BankAccountType type, Double balance,
+	public BankAccount(String accountNumber, String accountName, Long customerId, BankAccountType type, Double balance,
 			BankAccountCurrency currency) {
 		super();
 		this.accountNumber = accountNumber;
@@ -48,11 +48,11 @@ public class BankAccount {
 		this.accountName = accountName;
 	}
 
-	public Integer getCustomerId() {
+	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(Integer customerId) {
+	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
 

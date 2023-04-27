@@ -17,7 +17,7 @@ public class EbankingUser {
 
     private String password;
     
-    private int customerId;
+    private Long customerId;
 
 	public Long getId() {
 		return id;
@@ -43,11 +43,11 @@ public class EbankingUser {
 		this.password = password;
 	}
 
-	public int getCustomerId() {
+	public Long getCustomerId() {
 		return customerId;
 	}
 
-	public void setCustomerId(int customerId) {
+	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
 }

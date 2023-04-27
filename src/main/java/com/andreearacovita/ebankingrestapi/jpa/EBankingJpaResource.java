@@ -234,6 +234,42 @@ public class EBankingJpaResource {
 	
 	//---------------------------------------------------------------------------------------------
 	
+	@PostMapping("/users/create")
+	public ResponseEntity<String> createUserAccount(@RequestBody Map<String, String> payload) {
+		if (!payload.containsKey("firstName") ||
+				!payload.containsKey("lastName") ||
+				!payload.containsKey("OASI") ||
+				!payload.containsKey("username") ||
+				!payload.containsKey("passcode")) {
+			return new ResponseEntity<>("Incomplete data", HttpStatus.BAD_REQUEST);
+		}
+
+		// check if existing customer
+		Customer customer = customerRepository.findByOasi(payload.get("OASI"));
+		if (customer == null) {
+			// Create customer first
+			customer = new Customer();
+			customer.setFirstName(payload.get("firstName"));
+			customer.setLastName(payload.get("lastName"));
+			customer.setOasi(payload.get("OASI"));
+			customer = customerRepository.save(customer);
+		}
+		
+		// check if any user account matches customerId
+		EbankingUser user = userRepository.findByCustomerId(customer.getId());
+		if (user != null) {
+			return new ResponseEntity<>("Existing user account for customer", HttpStatus.BAD_REQUEST);
+		}
+		
+		user = new EbankingUser();
+		user.setCustomerId(customer.getId());
+		user.setUsername(payload.get("username"));
+		user.setPassword("{noop}" + payload.get("passcode"));
+		userRepository.save(user);
+		
+		return new ResponseEntity<>("Success", HttpStatus.OK);
+	}
+	
 	@PostMapping("/{username}/transaction")
 	@PreAuthorize("#username == authentication.name")
 	public ResponseEntity<String> createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
@@ -430,10 +466,4 @@ public class EBankingJpaResource {
 		}
 		return ResponseEntity.badRequest().build();
 	}
-
-//	@PutMapping("/users/{username}/todos/{id}")
-//	public BankAccount updateTodo(@PathVariable String username, @PathVariable int id, @RequestBody BankAccount bankAccount) {
-//		bankAccountRepository.save(bankAccount);
-//		return bankAccount;
-//	}
 }
