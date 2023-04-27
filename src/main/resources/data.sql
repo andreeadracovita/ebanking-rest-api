@@ -10,6 +10,9 @@ values (101, 'Jane', 'Doe', '0000011111001');
 insert into customer (id, first_name, last_name, oasi)
 values (102, 'John', 'Doe', '0000011111002');
 
+insert into customer (id, first_name, last_name, oasi)
+values (103, 'First', 'Last', '1234512345123');
+
 insert into bank_account (account_number, account_name, customer_id, type, balance, currency)
 values ('CH9300001000011110001', 'Checking Account', 101, 0, 1000.0, 0);
 
@@ -36,9 +39,6 @@ values ('0000111122220001', 'MasterCard CHF', 'Jane Doe', 'CH9300001000011110001
 
 insert into card (card_number, card_name, name_on_card, account_number, type, availability_date, pin, cvv, status)
 values ('0000111122220002', 'Credit Card CHF', 'Jane Doe', 'CH9300001000011110002', 0, DATEADD(yy, 4, CURRENT_DATE()), '0000', '000', 0);
-
-insert into card (card_number, card_name, name_on_card, account_number, type, availability_date, pin, cvv, status)
-values ('0000111122220003', 'Virtual Credit Card', 'Jane Doe', 'CH9300001000011110002', 1, DATEADD(yy, 4, CURRENT_DATE()), '0000', '000', 0);
 
 insert into transaction (id, from_account_number, to_account_number, issue_date, amount, currency, description, exchange_rate)
 values (101, 'CH9300001000011110003', 'CH9300001000011110001', DATEADD(m, -1, CURRENT_DATE()), 31, 0, '', 1);

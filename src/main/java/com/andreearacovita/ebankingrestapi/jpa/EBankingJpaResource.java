@@ -1,5 +1,6 @@
 package com.andreearacovita.ebankingrestapi.jpa;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -166,6 +167,20 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		
 		return bankAccountRepository.findByCustomerId(user.getCustomerId());
+	}
+	
+	@GetMapping("/{username}/accounts/paying")
+	@PreAuthorize("#username == authentication.name")
+	public List<BankAccount> retrievePayingBankAccountsForUsername(@PathVariable String username) {
+		EbankingUser user = userRepository.findByUsername(username);
+		
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		return bankAccounts
+				.stream()
+				.filter(bankAccount -> (bankAccount.getCurrency() == BankAccountCurrency.CHF ||
+										bankAccount.getCurrency() == BankAccountCurrency.EUR) &&
+										(bankAccount.getType() != BankAccountType.SAVINGS))
+				.toList();
 	}
 	
 	@GetMapping("/{username}/accounts/{id}")
@@ -350,11 +365,15 @@ public class EBankingJpaResource {
 		return bankAccountRepository.save(newAccount);
 	}
 	
-	@PostMapping("/{username}/card")
+	@PostMapping("/{username}/card/{accountNumber}")
 	@PreAuthorize("#username == authentication.name")
-	public Card createVirtualCard(@PathVariable String username, @RequestBody String accountNumber) {
+	public Card createVirtualCardForBankAccont(@PathVariable String username, @PathVariable String accountNumber) {
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(accountNumber);
 		if (bankAccount == null) {
+			return null;
+		}
+		Customer customer = customerRepository.findById(bankAccount.getCustomerId()).get();
+		if (customer == null) {
 			return null;
 		}
 		
@@ -364,13 +383,16 @@ public class EBankingJpaResource {
 		while (cardRepository.findByCardNumber(generatedCardNumber) != null) {
 			generatedCardNumber = Generator.generateCardNumber();
 		}
+		newCard.setCardNumber(generatedCardNumber);
 		newCard.setAccountNumber(accountNumber);
 		
 		newCard.setCvv(Generator.generateCVV());
 		newCard.setPin(Generator.generatePIN());
-		newCard.setAvailabilityDate(null);
+		newCard.setAvailabilityDate(LocalDate.now().plusYears(2));
 		newCard.setType(CardType.VIRTUAL);
+		newCard.setNameOnCard(customer.getFirstName() + " " + customer.getLastName());
 		newCard.setCardName("Virtual " + bankAccount.getCurrency().toString());
+		newCard.setStatus(CardStatus.ACTIVE);
 		
 		return cardRepository.save(newCard);
 	}
