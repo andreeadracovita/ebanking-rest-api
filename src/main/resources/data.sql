@@ -1,8 +1,8 @@
 INSERT INTO ebanking_user (id, username, password, customer_id)
-VALUES (101, 'user', '{noop}12345', 101);
+VALUES (101, 'user', '{bcrypt}$2a$10$neGDeHszLhO6MZb37KmjM.BKBx7SUxmUij3lEptVsjKLME/y3WcCm', 101);
 
 INSERT INTO ebanking_user (id, username, password, customer_id)
-VALUES (102, 'JohnDoe', '{noop}00000', 102);
+VALUES (102, 'JohnDoe', '{bcrypt}$2a$10$aR/Ok2qT6q9wez5yfEHDjOWYSFDg9Gap7R9QX529tSqyMGcfJhx9a', 102);
 
 insert into customer (id, first_name, last_name, oasi)
 values (101, 'Jane', 'Doe', '0000011111001');

@@ -30,7 +30,6 @@ import org.springframework.security.oauth2.server.resource.web.access.BearerToke
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.andreearacovita.ebankingrestapi.user.CustomUserDetailsService;
-import com.andreearacovita.ebankingrestapi.user.UserRepository;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -45,14 +44,14 @@ public class JwtSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
-                .csrf(AbstractHttpConfigurer::disable) // (1)
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         session -> 
                             session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS)) // (2)
+                                SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth -> 
-                            auth.requestMatchers("/authenticate", "/actuator", "/actuator/*")
+                            auth.requestMatchers("/authenticate", "/actuator", "/actuator/*", "/users/create")
                                 .permitAll()
                                 .requestMatchers(PathRequest.toH2Console())
                                 .permitAll() // h2-console is a servlet and NOT recommended for a production

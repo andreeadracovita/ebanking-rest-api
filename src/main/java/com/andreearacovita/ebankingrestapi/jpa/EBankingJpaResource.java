@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +48,8 @@ public class EBankingJpaResource {
 	private CustomerRepository customerRepository;
 	private TransactionRepository transactionRepository;
 	private UserRepository userRepository;
+
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	
 	public EBankingJpaResource(BankAccountRepository bankAccountRepository,
 							   CardRepository cardRepository,
@@ -279,7 +282,10 @@ public class EBankingJpaResource {
 		user = new EbankingUser();
 		user.setCustomerId(customer.getId());
 		user.setUsername(payload.get("username"));
-		user.setPassword("{noop}" + payload.get("passcode"));
+		String encryptedPassword = "{bcrypt}" + encoder.encode(payload.get("passcode"));
+		System.out.println(encryptedPassword);
+		user.setPassword(encryptedPassword);
+//		user.setPassword("{noop}" + payload.get("passcode"));
 		userRepository.save(user);
 		
 		return new ResponseEntity<>("Success", HttpStatus.OK);
