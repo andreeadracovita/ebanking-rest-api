@@ -316,7 +316,7 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		newAccount.setCustomerId(user.getCustomerId());
 		
-		newAccount.setBalance(0.);
+		newAccount.setBalance(100.);
 		newAccount.setAccountName("Checking account");
 		newAccount.setType(BankAccountType.CHECKING);
 		if (currency < BankAccountCurrency.values().length) {
