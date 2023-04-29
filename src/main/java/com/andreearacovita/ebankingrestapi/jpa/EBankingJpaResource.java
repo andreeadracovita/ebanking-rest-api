@@ -35,7 +35,7 @@ import com.andreearacovita.ebankingrestapi.customer.repository.CustomerRepositor
 import com.andreearacovita.ebankingrestapi.transaction.Transaction;
 import com.andreearacovita.ebankingrestapi.transaction.repository.TransactionRepository;
 import com.andreearacovita.ebankingrestapi.user.EbankingUser;
-import com.andreearacovita.ebankingrestapi.user.UserRepository;
+import com.andreearacovita.ebankingrestapi.user.repository.UserRepository;
 import com.andreearacovita.ebankingrestapi.utils.Generator;
 
 import jakarta.transaction.Transactional;
@@ -367,6 +367,29 @@ public class EBankingJpaResource {
 		
 		newAccount.setCurrency(BankAccountCurrency.CHF);
 		
+		
+		return bankAccountRepository.save(newAccount);
+	}
+	
+	@PostMapping("/{username}/account/credit")
+	@PreAuthorize("#username == authentication.name")
+	public BankAccount createCreditAccount(@PathVariable String username) {
+		BankAccount newAccount = new BankAccount();
+		
+		String generatedBankAccount = Generator.generateBankAccount();
+		while (bankAccountRepository.findByAccountNumber(generatedBankAccount) != null) {
+			generatedBankAccount = Generator.generateBankAccount();
+		}			
+		newAccount.setAccountNumber(generatedBankAccount);
+		
+		EbankingUser user = userRepository.findByUsername(username);
+		newAccount.setCustomerId(user.getCustomerId());
+		
+		newAccount.setBalance(5000.);
+		newAccount.setAccountName("Credit");
+		newAccount.setType(BankAccountType.CREDIT);
+		
+		newAccount.setCurrency(BankAccountCurrency.CHF);
 		
 		return bankAccountRepository.save(newAccount);
 	}
