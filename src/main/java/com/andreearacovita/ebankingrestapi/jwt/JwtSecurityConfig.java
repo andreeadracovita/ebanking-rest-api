@@ -51,7 +51,7 @@ public class JwtSecurityConfig {
                                 SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth -> 
-                            auth.requestMatchers("/authenticate", "/actuator", "/actuator/*", "/users/create")
+                            auth.requestMatchers("/authenticate", "/actuator", "/actuator/*", "/users/create", "/users/username")
                                 .permitAll()
                                 .requestMatchers(PathRequest.toH2Console())
                                 .permitAll() // h2-console is a servlet and NOT recommended for a production

@@ -65,9 +65,6 @@ public class EBankingJpaResource {
 	
 	@GetMapping("/{username}/customername/{id}")
 	@PreAuthorize("#username == authentication.name")
-//	@PostAuthorize("returnObject.username == 'ando'")
-//	@RolesAllowed({"ADMIN", "USER"})
-//	@Secured({"ROLE_ADMIN", "ROLE_USER"})
 	public String retrieveCustomerNameForCustomerId(@PathVariable String username, @PathVariable int id) {
 		Optional<Customer> customer = customerRepository.findById(id);
 		if (customer.isPresent()) {
@@ -250,6 +247,20 @@ public class EBankingJpaResource {
 		return transactions;
 	}
 	
+	@PostMapping("/users/username")
+	public ResponseEntity<Void> checkValidUsername(@RequestBody Map<String, String> payload) {
+		if (!payload.containsKey("usernameToCheck")) {
+			return ResponseEntity.badRequest().build();
+		}
+		
+		EbankingUser userWithUsername = userRepository.findByUsername(payload.get("usernameToCheck"));
+		if (userWithUsername != null) {
+			return ResponseEntity.badRequest().build();
+		}
+		
+		return ResponseEntity.ok().build();
+	}
+	
 	//---------------------------------------------------------------------------------------------
 	
 	@PostMapping("/users/create")
@@ -261,9 +272,22 @@ public class EBankingJpaResource {
 				!payload.containsKey("passcode")) {
 			return new ResponseEntity<>("Incomplete data", HttpStatus.BAD_REQUEST);
 		}
+		
+		EbankingUser userWithUsername = userRepository.findByUsername(payload.get("username"));
+		if (userWithUsername != null) {
+			return new ResponseEntity<>("Username is already taken", HttpStatus.BAD_REQUEST);
+		}
 
 		// check if existing customer
 		Customer customer = customerRepository.findByOasi(payload.get("OASI"));
+		// check if any user account matches customerId
+		if (customer != null) {
+			EbankingUser user = userRepository.findByCustomerId(customer.getId());
+			if (user != null) {
+				return new ResponseEntity<>("Existing user account for customer", HttpStatus.BAD_REQUEST);
+			}
+		}
+		
 		if (customer == null) {
 			// Create customer first
 			customer = new Customer();
@@ -273,19 +297,11 @@ public class EBankingJpaResource {
 			customer = customerRepository.save(customer);
 		}
 		
-		// check if any user account matches customerId
-		EbankingUser user = userRepository.findByCustomerId(customer.getId());
-		if (user != null) {
-			return new ResponseEntity<>("Existing user account for customer", HttpStatus.BAD_REQUEST);
-		}
-		
-		user = new EbankingUser();
+		EbankingUser user = new EbankingUser();
 		user.setCustomerId(customer.getId());
 		user.setUsername(payload.get("username"));
 		String encryptedPassword = "{bcrypt}" + encoder.encode(payload.get("passcode"));
-		System.out.println(encryptedPassword);
 		user.setPassword(encryptedPassword);
-//		user.setPassword("{noop}" + payload.get("passcode"));
 		userRepository.save(user);
 		
 		return new ResponseEntity<>("Success", HttpStatus.OK);
