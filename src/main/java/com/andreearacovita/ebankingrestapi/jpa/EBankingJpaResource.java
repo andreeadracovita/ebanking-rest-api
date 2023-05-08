@@ -311,9 +311,9 @@ public class EBankingJpaResource {
 		return new ResponseEntity<>("Success", HttpStatus.OK);
 	}
 	
-	@PostMapping("/{username}/transaction")
+	@PostMapping("/{username}/transaction/{source}")
 	@PreAuthorize("#username == authentication.name")
-	public ResponseEntity<String> createTransaction(@PathVariable String username, @RequestBody Transaction transaction) {
+	public ResponseEntity<String> createTransaction(@PathVariable String username, @PathVariable String source, @RequestBody Transaction transaction) {
 		// Validate sufficient funds
 		if (transaction.getAmount() < 0) {
 			return new ResponseEntity<>(
@@ -323,6 +323,13 @@ public class EBankingJpaResource {
 		
 		BankAccount fromAccount = bankAccountRepository.findByAccountNumber(transaction.getFromAccountNumber());
 		BankAccount toAccount = bankAccountRepository.findByAccountNumber(transaction.getToAccountNumber());
+		if (fromAccount != null && toAccount != null && !source.equals("exchange")) {
+			if (fromAccount.getCurrency() != toAccount.getCurrency()) {
+				return new ResponseEntity<>(
+				          "Only transfers between accounts with the same currency are allowed. Exchange and transfer from a preferred currency account", 
+				          HttpStatus.BAD_REQUEST);
+			}
+		}
 		if (fromAccount != null && fromAccount.getBalance() < transaction.getAmount()) {
 			return new ResponseEntity<>(
 			          "Insufficient funds", 
