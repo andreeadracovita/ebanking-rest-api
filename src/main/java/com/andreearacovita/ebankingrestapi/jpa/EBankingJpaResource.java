@@ -282,7 +282,7 @@ public class EBankingJpaResource {
 		Customer customer = customerRepository.findByOasi(payload.get("OASI"));
 		// check if any user account matches customerId
 		if (customer != null) {
-			if (customer.getLastName() != payload.get("lastName")) {
+			if (!customer.getLastName().equals(payload.get("lastName"))) {
 				return new ResponseEntity<>("OASI exists in our system, but does not match the given name. Please refresh your personal information", HttpStatus.BAD_REQUEST);
 			}
 			EbankingUser user = userRepository.findByCustomerId(customer.getId());
