@@ -460,6 +460,13 @@ public class EBankingJpaResource {
 		}
 		
 		if (user != null && bankAccount != null && user.getCustomerId() == bankAccount.getCustomerId()) {
+			// Delete any cards attached to this account
+			List<Card> attachedCards = cardRepository.findByAccountNumber(accountNumber);
+			for (var card : attachedCards) {
+				cardRepository.delete(card);
+			}
+			
+			// Delete bank account
 			bankAccountRepository.deleteByAccountNumber(accountNumber);
 			return ResponseEntity.ok().build();
 		}
