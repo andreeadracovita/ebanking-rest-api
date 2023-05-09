@@ -336,11 +336,14 @@ public class EBankingJpaResource {
 			          HttpStatus.BAD_REQUEST);
 		}
 		
-		fromAccount.withdraw(transaction.getAmount());
+		Double withdrawAmount = Math.floor(transaction.getAmount() * 100) / 100;
+		fromAccount.withdraw(withdrawAmount);
 		
 		if (toAccount != null) {
 			Double actualAmount = transaction.getAmount() * transaction.getExchangeRate();
 			Double convertedAmount = Math.floor(actualAmount * 100) / 100;
+			System.out.println("amount: " + transaction.getAmount() + " exchangeRate: " + transaction.getExchangeRate());
+			System.out.println("Deposited amount: " + convertedAmount);
 			toAccount.deposit(convertedAmount);
 		}
 		
