@@ -1,6 +1,5 @@
 package com.andreearacovita.ebankingrestapi.transaction;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountCurrency;
