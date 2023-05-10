@@ -23,8 +23,6 @@ public class Card {
 	@Column(nullable = false)
 	private String nameOnCard;
 	
-//	private String accountNumber;
-	
 	@Column(nullable = false)
 	private CardType type;
 	

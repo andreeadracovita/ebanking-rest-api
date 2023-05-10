@@ -183,19 +183,6 @@ public class EBankingJpaResource {
 				.toList();
 	}
 	
-	@GetMapping("/{username}/accounts/{id}")
-	@PreAuthorize("#username == authentication.name")
-	public BankAccount retrieveBankAccountForAccountNumber(@PathVariable String username, @PathVariable String id) {
-		EbankingUser user = userRepository.findByUsername(username);
-		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(id);
-		
-		if (user.getCustomer().getId() == bankAccount.getCustomer().getId()) {
-			return bankAccount;
-		}
-		
-		return null;
-	}
-	
 	@GetMapping("/{username}/cards")
 	@PreAuthorize("#username == authentication.name")
 	public List<Card> retrieveAllCardsForUsername(@PathVariable String username) {
@@ -214,9 +201,7 @@ public class EBankingJpaResource {
 	
 	@GetMapping("/{username}/cards/{id}/availabilityDate")
 	@PreAuthorize("#username == authentication.name")
-	public String retrieveAvailabilityDateForCardNumber(@PathVariable String username, @PathVariable String id) {
-		// check user.customerId == account.customerId (for card.accountNumber)
-		
+	public String retrieveAvailabilityDateForCardNumber(@PathVariable String username, @PathVariable String id) {	
 		Card card = cardRepository.findByCardNumber(id);
 		
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/yy");
@@ -363,7 +348,6 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
 		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(100.);
@@ -388,7 +372,6 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
 		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(0.);
@@ -413,7 +396,6 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
 		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(5000.);
