@@ -1,10 +1,14 @@
 package com.andreearacovita.ebankingrestapi.user;
 
+import com.andreearacovita.ebankingrestapi.customer.Customer;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class EbankingUser {
@@ -15,9 +19,12 @@ public class EbankingUser {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
     private String password;
     
-    private Long customerId;
+    @OneToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
 	public Long getId() {
 		return id;
@@ -43,11 +50,11 @@ public class EbankingUser {
 		this.password = password;
 	}
 
-	public Long getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 }

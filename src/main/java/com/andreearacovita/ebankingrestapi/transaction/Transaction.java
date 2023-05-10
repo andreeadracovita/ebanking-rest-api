@@ -2,12 +2,16 @@ package com.andreearacovita.ebankingrestapi.transaction;
 
 import java.time.LocalDateTime;
 
+import com.andreearacovita.ebankingrestapi.bankaccount.BankAccount;
 import com.andreearacovita.ebankingrestapi.bankaccount.BankAccountCurrency;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Transaction {
@@ -16,34 +20,26 @@ public class Transaction {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
+	@Column(nullable = false)
 	private String fromAccountNumber;
 	
+	@Column(nullable = false)
 	private String toAccountNumber;
 	
+	@Column(nullable = false)
 	private LocalDateTime issueDate;
 	
+	@Column(nullable = false)
 	private Double amount;
 	
+	@Column(nullable = false)
 	private BankAccountCurrency currency;
 	
+	@Column(nullable = false)
 	private String description;
 	
+	@Column(nullable = false)
 	private Double exchangeRate;
-	
-	public Transaction() { }
-
-	public Transaction(Integer id, String fromAccountNumber, String toAccountNumber,
-			LocalDateTime issueDate, Double amount, BankAccountCurrency currency, String description, Double exchangeRate) {
-		super();
-		this.id = id;
-		this.fromAccountNumber = fromAccountNumber;
-		this.toAccountNumber = toAccountNumber;
-		this.issueDate = issueDate;
-		this.amount = amount;
-		this.currency = currency;
-		this.description = description;
-		this.exchangeRate = exchangeRate;
-	}
 
 	public Integer getId() {
 		return id;

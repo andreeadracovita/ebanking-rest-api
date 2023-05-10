@@ -2,46 +2,47 @@ package com.andreearacovita.ebankingrestapi.card;
 
 import java.time.LocalDate;
 
+import com.andreearacovita.ebankingrestapi.bankaccount.BankAccount;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Card {
 		
 	@Id
+	@Column(nullable = false, unique = true)
 	private String cardNumber;
 	
+	@Column(nullable = false)
 	private String cardName;
 	
+	@Column(nullable = false)
 	private String nameOnCard;
 	
-	private String accountNumber;
+//	private String accountNumber;
 	
+	@Column(nullable = false)
 	private CardType type;
 	
+	@Column(nullable = false)
 	private LocalDate availabilityDate;
 	
+	@Column(nullable = false)
 	private String pin;
 	
+	@Column(nullable = false)
 	private String cvv;
 	
+	@Column(nullable = false)
 	private CardStatus status;
 	
-	public Card() {}
-
-	public Card(String cardNumber, String cardName, String nameOnCard, String accountNumber, CardType type,
-			LocalDate availabilityDate, String pin, String cvv) {
-		super();
-		this.cardNumber = cardNumber;
-		this.cardName = cardName;
-		this.nameOnCard = nameOnCard;
-		this.accountNumber = accountNumber;
-		this.type = type;
-		this.availabilityDate = availabilityDate;
-		this.pin = pin;
-		this.cvv = cvv;
-		this.status = CardStatus.ACTIVE;
-	}
+	@ManyToOne
+	@JoinColumn(name="account_number", nullable=false)
+	private BankAccount bankAccount;
 
 	public String getCardNumber() {
 		return cardNumber;
@@ -67,12 +68,12 @@ public class Card {
 		this.nameOnCard = nameOnCard;
 	}
 
-	public String getAccountNumber() {
-		return accountNumber;
+	public BankAccount getBankAccount() {
+		return bankAccount;
 	}
 
-	public void setAccountNumber(String accountNumber) {
-		this.accountNumber = accountNumber;
+	public void setBankAccount(BankAccount bankAccount) {
+		this.bankAccount = bankAccount;
 	}
 
 	public CardType getType() {

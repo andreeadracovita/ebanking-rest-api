@@ -1,16 +1,15 @@
 package com.andreearacovita.ebankingrestapi.card.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.andreearacovita.ebankingrestapi.bankaccount.BankAccount;
 import com.andreearacovita.ebankingrestapi.card.Card;
-import com.andreearacovita.ebankingrestapi.customer.Customer;
 
 public interface CardRepository  extends JpaRepository<Card, Integer> {
 	
-	List<Card> findByAccountNumber(String accountNumber);
+	List<Card> findByBankAccount(BankAccount bankAccount);
 
 	Card findByCardNumber(String generatedCardNumber);
 

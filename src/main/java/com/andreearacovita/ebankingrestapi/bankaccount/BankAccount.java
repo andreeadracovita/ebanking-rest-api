@@ -1,36 +1,43 @@
 package com.andreearacovita.ebankingrestapi.bankaccount;
 
+import java.util.Set;
+
+import com.andreearacovita.ebankingrestapi.card.Card;
+import com.andreearacovita.ebankingrestapi.customer.Customer;
+import com.andreearacovita.ebankingrestapi.transaction.Transaction;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class BankAccount {
 
 	@Id
+	@Column(nullable = false)
 	private String accountNumber;
 	
+	@Column(nullable = false)
 	private String accountName;
 	
-	private Long customerId;
-	
+	@Column(nullable = false)
 	private BankAccountType type;
 	
+	@Column(nullable = false)
 	private Double balance;
 
+	@Column(nullable = false)
 	private BankAccountCurrency currency;
 	
-	public BankAccount() {}
-
-	public BankAccount(String accountNumber, String accountName, Long customerId, BankAccountType type, Double balance,
-			BankAccountCurrency currency) {
-		super();
-		this.accountNumber = accountNumber;
-		this.accountName = accountName;
-		this.customerId = customerId;
-		this.type = type;
-		this.balance = balance;
-		this.currency = currency;
-	}
+	@ManyToOne
+	@JoinColumn(name = "customer_id", nullable = false)
+	private Customer customer;
+	
+	@OneToMany(mappedBy = "bankAccount")
+	private Set<Card> cards;
 
 	public String getAccountNumber() {
 		return accountNumber;
@@ -48,12 +55,12 @@ public class BankAccount {
 		this.accountName = accountName;
 	}
 
-	public Long getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public BankAccountType getType() {

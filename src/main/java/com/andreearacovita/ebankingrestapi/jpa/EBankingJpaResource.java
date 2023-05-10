@@ -78,7 +78,7 @@ public class EBankingJpaResource {
 	public String retrieveCustomerNameForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		Customer customer = customerRepository.findById(user.getCustomerId()).get();
+		Customer customer = customerRepository.findById(user.getCustomer().getId()).get();
 		
 		return customer.getFirstName() + " " + customer.getLastName();
 	}
@@ -88,7 +88,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveCheckingAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 					.stream()
@@ -101,7 +101,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveCreditAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 					.stream()
@@ -114,7 +114,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveSavingsAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 					.stream()
@@ -127,7 +127,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveAllLocalBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 				.stream()
@@ -140,7 +140,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveAllLocalCheckingBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 				.stream()
@@ -153,7 +153,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveAllForeignBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		return bankAccounts
 				.stream()
@@ -166,7 +166,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveAllBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		return bankAccountRepository.findByCustomerId(user.getCustomerId());
+		return bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 	}
 	
 	@GetMapping("/{username}/accounts/paying")
@@ -174,7 +174,7 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrievePayingBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		return bankAccounts
 				.stream()
 				.filter(bankAccount -> (bankAccount.getCurrency() == BankAccountCurrency.CHF ||
@@ -189,7 +189,7 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(id);
 		
-		if (user.getCustomerId() == bankAccount.getCustomerId()) {
+		if (user.getCustomer().getId() == bankAccount.getCustomer().getId()) {
 			return bankAccount;
 		}
 		
@@ -201,11 +201,11 @@ public class EBankingJpaResource {
 	public List<Card> retrieveAllCardsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomerId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
 		List<Card> cards = new ArrayList<>();
 		for (var bankAccount : bankAccounts) {
-			List<Card> currentCards = cardRepository.findByAccountNumber(bankAccount.getAccountNumber());
+			List<Card> currentCards = cardRepository.findByBankAccount(bankAccount);
 			cards.addAll(currentCards);
 		}
 		
@@ -230,7 +230,7 @@ public class EBankingJpaResource {
 		
 		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(bankAccountNumber);
 		
-		if (bankAccount == null || (bankAccount != null && bankAccount.getCustomerId() != user.getCustomerId())) {
+		if (bankAccount == null || (bankAccount != null && bankAccount.getCustomer().getId() != user.getCustomer().getId())) {
 			return new ArrayList<>();
 		}
 		
@@ -302,7 +302,7 @@ public class EBankingJpaResource {
 		}
 		
 		EbankingUser user = new EbankingUser();
-		user.setCustomerId(customer.getId());
+		user.setCustomer(customer);
 		user.setUsername(payload.get("username"));
 		String encryptedPassword = "{bcrypt}" + encoder.encode(payload.get("passcode"));
 		user.setPassword(encryptedPassword);
@@ -363,7 +363,8 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-		newAccount.setCustomerId(user.getCustomerId());
+//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
+		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(100.);
 		newAccount.setAccountName("Checking account");
@@ -387,7 +388,8 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-		newAccount.setCustomerId(user.getCustomerId());
+//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
+		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(0.);
 		newAccount.setAccountName("Savings account");
@@ -411,7 +413,8 @@ public class EBankingJpaResource {
 		newAccount.setAccountNumber(generatedBankAccount);
 		
 		EbankingUser user = userRepository.findByUsername(username);
-		newAccount.setCustomerId(user.getCustomerId());
+//		Customer customer = customerRepository.findById(user.getCustomerId()).get();
+		newAccount.setCustomer(user.getCustomer());
 		
 		newAccount.setBalance(5000.);
 		newAccount.setAccountName("Credit");
@@ -429,7 +432,7 @@ public class EBankingJpaResource {
 		if (bankAccount == null) {
 			return null;
 		}
-		Customer customer = customerRepository.findById(bankAccount.getCustomerId()).get();
+		Customer customer = customerRepository.findById(bankAccount.getCustomer().getId()).get();
 		if (customer == null) {
 			return null;
 		}
@@ -441,7 +444,7 @@ public class EBankingJpaResource {
 			generatedCardNumber = Generator.generateCardNumber();
 		}
 		newCard.setCardNumber(generatedCardNumber);
-		newCard.setAccountNumber(accountNumber);
+		newCard.setBankAccount(bankAccount);
 		
 		newCard.setCvv(Generator.generateCVV());
 		newCard.setPin(Generator.generatePIN());
@@ -467,9 +470,9 @@ public class EBankingJpaResource {
 			return ResponseEntity.badRequest().build();
 		}
 		
-		if (user != null && bankAccount != null && user.getCustomerId() == bankAccount.getCustomerId()) {
+		if (user != null && bankAccount != null && user.getCustomer().getId() == bankAccount.getCustomer().getId()) {
 			// Delete any cards attached to this account
-			List<Card> attachedCards = cardRepository.findByAccountNumber(accountNumber);
+			List<Card> attachedCards = cardRepository.findByBankAccount(bankAccount);
 			for (var card : attachedCards) {
 				cardRepository.delete(card);
 			}
@@ -493,7 +496,7 @@ public class EBankingJpaResource {
 		if (user == null || bankAccount == null) {
 			return ResponseEntity.badRequest().build();
 		}
-		if (user.getCustomerId() != bankAccount.getCustomerId()) {
+		if (user.getCustomer().getId() != bankAccount.getCustomer().getId()) {
 			return ResponseEntity.badRequest().build();
 		}
 		if (payload.get("name") != null) {
@@ -512,8 +515,8 @@ public class EBankingJpaResource {
 		if (user == null || card == null) {
 			return null;
 		}
-		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(card.getAccountNumber());
-		if (bankAccount != null && user.getCustomerId() == bankAccount.getCustomerId()) {
+		BankAccount bankAccount = card.getBankAccount();
+		if (bankAccount != null && user.getCustomer().getId() == bankAccount.getCustomer().getId()) {
 			card.setStatus(CardStatus.ACTIVE);
 			cardRepository.save(card);
 			return card;
@@ -529,8 +532,8 @@ public class EBankingJpaResource {
 		if (user == null || card == null) {
 			return null;
 		}
-		BankAccount bankAccount = bankAccountRepository.findByAccountNumber(card.getAccountNumber());
-		if (bankAccount != null && user.getCustomerId() == bankAccount.getCustomerId()) {
+		BankAccount bankAccount = card.getBankAccount();
+		if (bankAccount != null && user.getCustomer().getId() == bankAccount.getCustomer().getId()) {
 			card.setStatus(CardStatus.INACTIVE);
 			cardRepository.save(card);
 			return card;
