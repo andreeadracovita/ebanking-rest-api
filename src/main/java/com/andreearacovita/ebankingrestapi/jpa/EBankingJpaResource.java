@@ -63,16 +63,6 @@ public class EBankingJpaResource {
 		this.userRepository = userRepository;
 	}
 	
-	@GetMapping("/{username}/customername/{id}")
-	@PreAuthorize("#username == authentication.name")
-	public String retrieveCustomerNameForCustomerId(@PathVariable String username, @PathVariable int id) {
-		Optional<Customer> customer = customerRepository.findById(id);
-		if (customer.isPresent()) {
-			return customer.get().getFirstName() + " " + customer.get().getLastName();
-		}
-		return "";
-	}
-	
 	@GetMapping("/{username}/customername")
 	@PreAuthorize("#username == authentication.name")
 	public String retrieveCustomerNameForUsername(@PathVariable String username) {
