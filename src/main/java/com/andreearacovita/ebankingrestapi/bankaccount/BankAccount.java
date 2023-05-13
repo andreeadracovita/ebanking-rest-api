@@ -1,5 +1,6 @@
 package com.andreearacovita.ebankingrestapi.bankaccount;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.andreearacovita.ebankingrestapi.card.Card;
@@ -31,6 +32,9 @@ public class BankAccount {
 
 	@Column(nullable = false)
 	private BankAccountCurrency currency;
+	
+	@Column(nullable = false)
+	private LocalDateTime issueDate;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id", nullable = false)
@@ -85,6 +89,14 @@ public class BankAccount {
 
 	public void setCurrency(BankAccountCurrency currency) {
 		this.currency = currency;
+	}
+	
+	public LocalDateTime getIssueDate() {
+		return issueDate;
+	}
+
+	public void setIssueDate(LocalDateTime issueDate) {
+		this.issueDate = issueDate;
 	}
 	
 	public boolean deposit(Double amount) {

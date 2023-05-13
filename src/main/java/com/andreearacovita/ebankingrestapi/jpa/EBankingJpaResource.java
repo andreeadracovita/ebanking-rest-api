@@ -80,6 +80,11 @@ public class EBankingJpaResource {
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
 		return bankAccounts
 					.stream()
 					.filter(bankAccount -> bankAccount.getType() == BankAccountType.CHECKING)
@@ -92,6 +97,11 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
+		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
 		
 		return bankAccounts
 					.stream()
@@ -106,6 +116,11 @@ public class EBankingJpaResource {
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
 		return bankAccounts
 					.stream()
 					.filter(bankAccount -> bankAccount.getType() == BankAccountType.SAVINGS)
@@ -118,6 +133,11 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
+		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
 		
 		return bankAccounts
 				.stream()
@@ -132,6 +152,11 @@ public class EBankingJpaResource {
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
 		return bankAccounts
 				.stream()
 				.filter(bankAccount -> bankAccount.getCurrency() == BankAccountCurrency.CHF && bankAccount.getType() == BankAccountType.CHECKING)
@@ -145,6 +170,11 @@ public class EBankingJpaResource {
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
 		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
 		return bankAccounts
 				.stream()
 				.filter(bankAccount -> bankAccount.getCurrency() != BankAccountCurrency.CHF)
@@ -156,7 +186,14 @@ public class EBankingJpaResource {
 	public List<BankAccount> retrieveAllBankAccountsForUsername(@PathVariable String username) {
 		EbankingUser user = userRepository.findByUsername(username);
 		
-		return bankAccountRepository.findByCustomerId(user.getCustomer().getId());
+		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
+		
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
+		return bankAccounts;
 	}
 	
 	@GetMapping("/{username}/accounts/paying")
@@ -165,6 +202,11 @@ public class EBankingJpaResource {
 		EbankingUser user = userRepository.findByUsername(username);
 		
 		List<BankAccount> bankAccounts = bankAccountRepository.findByCustomerId(user.getCustomer().getId());
+		Comparator<BankAccount> comparator = (a1, a2) -> a1.getIssueDate()
+                .compareTo(a2.getIssueDate());
+		
+		Collections.sort(bankAccounts, comparator);
+		
 		return bankAccounts
 				.stream()
 				.filter(bankAccount -> (bankAccount.getCurrency() == BankAccountCurrency.CHF ||
@@ -346,6 +388,7 @@ public class EBankingJpaResource {
 		if (currency < BankAccountCurrency.values().length) {
 			newAccount.setCurrency(BankAccountCurrency.values()[currency]);
 		}
+		newAccount.setIssueDate(LocalDateTime.now());
 		
 		return bankAccountRepository.save(newAccount);
 	}
@@ -369,7 +412,7 @@ public class EBankingJpaResource {
 		newAccount.setType(BankAccountType.SAVINGS);
 		
 		newAccount.setCurrency(BankAccountCurrency.CHF);
-		
+		newAccount.setIssueDate(LocalDateTime.now());
 		
 		return bankAccountRepository.save(newAccount);
 	}
@@ -393,6 +436,7 @@ public class EBankingJpaResource {
 		newAccount.setType(BankAccountType.CREDIT);
 		
 		newAccount.setCurrency(BankAccountCurrency.CHF);
+		newAccount.setIssueDate(LocalDateTime.now());
 		
 		return bankAccountRepository.save(newAccount);
 	}

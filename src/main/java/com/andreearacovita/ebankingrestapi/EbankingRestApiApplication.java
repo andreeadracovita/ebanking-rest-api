@@ -19,7 +19,7 @@ public class EbankingRestApiApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
 					.allowedMethods("*")
-					.allowedOrigins("http://localhost:3000");
+					.allowedOrigins("*");
 			}
 		};
 	}
