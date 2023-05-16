@@ -26,11 +26,15 @@ Pre-authorization is required in order to complete a request:
 
 ## Customer Resource
 Retrieve customer name for given username
-`GET /{username}/customername`
+```
+GET /{username}/customername
+```
 
 ## EbankingUser Resource
 Create a new user account and a customer if not already existing
-`POST /users/create`
+```
+POST /users/create
+```
 ```
 {
     "firstName": "First",
@@ -42,7 +46,9 @@ Create a new user account and a customer if not already existing
 ```
 
 Check if payload username is valid
-`POST /users/username`
+```
+POST /users/username
+```
 ```
 {
     "usernameToCheck": "FirstLast"
@@ -50,7 +56,9 @@ Check if payload username is valid
 ```
 
 Update user account passcode
-`PUT /{username}/passcode`
+```
+PUT /{username}/passcode
+```
 ```
 {
     "passcode": "12345"
@@ -59,43 +67,67 @@ Update user account passcode
 
 ## BankAccount Resource
 Retrieve all bank accounts for a given username
-`GET /{username}/accounts`
+```
+GET /{username}/accounts
+```
 
 Retrieve all checking bank account for a given username
-`GET /{username}/accounts/checking`
+```
+GET /{username}/accounts/checking
+```
 
 Retrieve all credit bank accounts for a given username
-`GET /{username}/accounts/credit`
+```
+GET /{username}/accounts/credit
+```
 
 Retrieve all savings bank accounts for a given username
-`GET /{username}/accounts/savings`
+```
+GET /{username}/accounts/savings
+```
 
 Retrieve all bank accounts with local currency (CHF) for a given username
-`GET /{username}/accounts/local`
+```
+GET /{username}/accounts/local
+```
 
 Retrieve all local checking bank accounts for a given username
-`GET /{username}/accounts/checking/local`
+```
+GET /{username}/accounts/checking/local
+```
 
 Retrieve all foreign currency (non-CHF) bank accounts for a given username
-`GET /{username}/accounts/foreign`
+```
+GET /{username}/accounts/foreign
+```
 
 Retrieve all paying bank accounts (checking or credit) for a given username
-`GET /{username}/accounts/paying`
+```
+GET /{username}/accounts/paying
+```
 
 Create a checking bank account with a given currency
-`POST /{username}/account/checking/{currency}`
+```
+POST /{username}/account/checking/{currency}
+```
 
 Create a savings bank account
-`POST /{username}/account/savings`
+```
+POST /{username}/account/savings
+```
 
 Create a credit bank account
-`POST /{username}/account/credit`
+```
+POST /{username}/account/credit
+```
 
 Delete a bank account
-`DELETE /{username}/accounts/{accountNumber}`
+```
+DELETE /{username}/accounts/{accountNumber}
+```
 
 Update a bank account's name
-`PUT /{username}/accounts/{accountNumber}`
+```PUT /{username}/accounts/{accountNumber}```
 ```
 {
     "name": "EUR Account"
@@ -104,26 +136,40 @@ Update a bank account's name
 
 ## Card Resource
 Retrieve all cards for a given username
-`GET /{username}/cards`
+```
+GET /{username}/cards
+```
 
 Retrieve formatted availability date for a given card number
-`GET /{username}/cards/{id}/availabilityDate`
+```
+GET /{username}/cards/{id}/availabilityDate
+```
 
 Create a virtual card for a given bank account number
-`POST /{username}/card/{accountNumber}`
+```
+POST /{username}/card/{accountNumber}
+```
 
 Activate a card
-`PUT /{username}/cards/{id}/activate`
+```
+PUT /{username}/cards/{id}/activate
+```
 
 Deactivate a card
-`PUT /{username}/cards/{id}/deactivate`
+```
+PUT /{username}/cards/{id}/deactivate
+```
 
 ## Transaction Resource
 Retrieve all transactions for a given bank account number
-`GET /{username}/{bankAccountNumber}/transactions`
+```
+GET /{username}/{bankAccountNumber}/transactions
+```
 
 Create a transaction
-`POST /{username}/transaction/{source}`
+```
+POST /{username}/transaction/{source}
+```
 ```
 {
     "id": -1,
@@ -135,3 +181,7 @@ Create a transaction
     "description": ""
 }
 ```
+
+## Further development
+- Code duplication in requests can be decreased, as well as unifying multiple requests under the same mapping.
+- Further research needs to be made regarding Hibernate and generating tables using @Entity annotation. In particular, join columns needs to be further improved not to exposes data. The whole customer entity is returned instead of only customer_id.
