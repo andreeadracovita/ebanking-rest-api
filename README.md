@@ -180,7 +180,8 @@ POST /{username}/transaction/{source}
     "beneficiaryName": "First Last",
     "amount": 10.00,
     "currency": 0,
-    "description": ""
+    "description": "",
+    "exchangeRate": 1.00
 }
 ```
 
