@@ -127,7 +127,9 @@ DELETE /{username}/accounts/{accountNumber}
 ```
 
 Update a bank account's name
-```PUT /{username}/accounts/{accountNumber}```
+```
+PUT /{username}/accounts/{accountNumber}
+```
 ```
 {
     "name": "EUR Account"
